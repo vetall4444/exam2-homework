@@ -87,12 +87,55 @@ async function checkError()
         throw 'wrong query';
     }
 }
+async function completeCompare (tokens,cities)
+{
+    if(Number(tokens.count)>0)
+    {
+        if(tokens.propertyToCompare==='number')
+        {
+            console.log(22);
+            switch (tokens.compareSymbol)
+            {
+                case '>':
+                    let j=0;
+                    for(let i =0; i<cities.length;i++)
+                    {
+                        if(j<tokens.count)
+                        {
+                            if(cities[i].Number>tokens.valueToCompare)
+                            {
+                                console.log(cities[i]);
+                                j++;
+                            }
+                        }
+                        else
+                        {
+                            break;
+                        }
+                    }
+                    break;
+                case '<':
+                case '=':
+            }
+        }
+    }
+    else if(tokens.count==='all' || tokens.count==='first' || tokens.count==='last')
+    {
+        
+    }
+    else
+    {
+        console.log('так не должно быть');
+        throw 'так не должно быть';
+    }
+}
 // Чтение городов в переменную, запись в переменную производится в Callback-функции
 fs.readFile(LIST_OF_CITIES, "utf8", (err, data) => {
     cities = data;
     cities = JSON.parse(cities);
     checkError()
-                .then( () => { console.log('хз') } )
-                .catch( () => { throw new Error("wrong query") ; } );
+                .then( (tokens) => { console.log(tokens); } )
+                .then( () => { completeCompare(tokens,cities)} )
+                .catch( () => { console.log("wrong query") ; } );
 });
 
