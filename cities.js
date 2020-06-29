@@ -60,12 +60,7 @@ function parseQuery(consoleArg)
 }
 async function checkError()
 {
-    try{
-        let keyWord= await parseQuery(query);
-    }
-    catch(err) {
-        throw 'kek';
-      }
+    let keyWord= await parseQuery(query);
     if(!!keyWord)
     {
         if(!!keyWord[1] && !!keyWord[2])
