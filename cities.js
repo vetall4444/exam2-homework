@@ -63,7 +63,7 @@ async function checkError()
     try{
         let keyWord= await parseQuery(query);
     }
-    catch {
+    catch(err) {
         throw 'kek';
       }
     if(!!keyWord)
@@ -79,26 +79,6 @@ async function checkError()
                 }
             }
             return select;
-            /* if(Number(select.count)>0)
-            {
-                console.log('число');
-                // if(select.propertyToCompare ==='number')
-                // {
-                //     switch (select.compareSymbol)
-                //     {
-                //         case'>': 
-                //             for(let i=0;i<select.count;i++)
-
-                //     }
-                // }
-                return select;
-            }
-            else if (select.count==='all' || select.count==='all' )
-            {
-                console.log('слово');
-                return select;
-            }
-            console.log(select); */
         }
         else
         {
@@ -119,35 +99,5 @@ fs.readFile(LIST_OF_CITIES, "utf8", (err, data) => {
     checkError()
                 .then( () => { console.log('хз') } )
                 .catch( () => { throw new Error("wrong query") ; } );
-    // let select = {
-    //     count: arr[1],
-    //     filter : {
-    //         propertyToCompare: arr[3],
-    //         compareSymbol:arr[4],
-    //         valueToCompare: arr[5]
-    //     }
-    // }
-    // if(select.count=='all')
-    // {
-    //     for(let i in cities)
-    //     {
-    //         eval("if (s < 5)");
-    //         if(select.propertyToCompare eval(select.compareSymbol) )
-    //         console.log(cities[i]);
-    //     }
-    // }
-    // else if(select.count == 'first')
-    // {
-    //     console.log(cities[0]);
-    // }
-    // else if(select.count == 'last')
-    // {
-    //     console.log(cities[cities.length-1]);
-    // }
-    // else if(typeof (count) == Number)
-    // {
-    //     for(let i=0;i<count;i++)
-    //         console.log(cities[i]);
-    // }
 });
 
