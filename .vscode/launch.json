@@ -18,6 +18,7 @@
             ]
         },
         {
+            "args": ["3 where %number%>5"],
             "type": "node",
             "request": "launch",
             "name": "Запустить программу",

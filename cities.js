@@ -36,7 +36,7 @@ const query = process.argv[2];
 let cities = {};
 function parseQuery(consoleArg)
 {
-    let reg =/([\d]+|first|last|all)([\s]where[\s]%(number|city|region)%(>|<|=)([\w]+|[\d]+))?/i;
+    let reg =/([\d]+|first|last|all)([\s]where[\s]%(number|city|region)%(>|<|=)([a-я]+|[\d]+))?/i;
     let arr = consoleArg.match(reg);
     if(!!arr)
     {
@@ -87,41 +87,77 @@ async function checkError()
         throw 'wrong query';
     }
 }
-async function completeCompare (tokens,cities)
+function completeCompare (tokens,cities)
 {
+    let startPostion=0;
+    if( tokens.count==='first')
+    {
+        tokens.count=1;
+    }
+    else if(tokens.count==='all')
+    {
+        tokens.count=cities.length;
+    }
+
+    // else if( tokens.count==='last')
+    // {
+    //     tokens.count=1;
+    //     startPostion=-2;
+    // }
+    
     if(Number(tokens.count)>0)
     {
-        if(tokens.propertyToCompare==='number')
+        let res;
+        if(tokens.filter.propertyToCompare==='number')
         {
-            console.log(22);
-            switch (tokens.compareSymbol)
+            switch (tokens.filter.compareSymbol)
             {
                 case '>':
-                    let j=0;
-                    for(let i =0; i<cities.length;i++)
-                    {
-                        if(j<tokens.count)
-                        {
-                            if(cities[i].Number>tokens.valueToCompare)
-                            {
-                                console.log(cities[i]);
-                                j++;
-                            }
-                        }
-                        else
-                        {
-                            break;
-                        }
-                    }
-                    break;
+                    res=cities.filter((item)=>item.number>tokens.filter.valueToCompare);
+                    return res.slice(startPostion,tokens.count);
                 case '<':
+                    res=cities.filter((item)=>item.number<tokens.filter.valueToCompare);
+                    return res.slice(startPostion,tokens.count);
                 case '=':
+                    res=cities.filter((item)=>item.number==tokens.filter.valueToCompare);
+                    return res.slice(startPostion,tokens.count);
+                default: console.log('это какое-то недоразумение');break;
             }
         }
-    }
-    else if(tokens.count==='all' || tokens.count==='first' || tokens.count==='last')
-    {
-        
+        else if(tokens.filter.propertyToCompare==='region')
+        {
+            switch (tokens.filter.compareSymbol)
+            {
+                case '>':
+                    console.log('нельзя сравнить на > текстовое поле');
+                    throw 'нельзя сравнить на > текстовое поле';
+                case '<':
+                    console.log('нельзя сравнить на < текстовое поле');
+                    throw 'нельзя сравнить на < текстовое поле';
+                case '=':
+                    res=cities.filter((item)=>item.region===tokens.filter.valueToCompare);
+                    return res.slice(startPostion,tokens.count);
+                default: 
+                    console.log('это какое-то недоразумение');break;
+            }
+        }
+        else if(tokens.filter.propertyToCompare==='city')
+        {
+            switch (tokens.filter.compareSymbol)
+            {
+                case '>':
+                    console.log('нельзя сравнить на > текстовое поле');
+                    throw 'нельзя сравнить на > текстовое поле';
+                case '<':
+                    console.log('нельзя сравнить на < текстовое поле');
+                    throw 'нельзя сравнить на < текстовое поле';
+                case '=':
+                    res=cities.filter((item)=>item.city===tokens.filter.valueToCompare);
+                    return res.slice(startPostion,tokens.count);
+                default: 
+                    console.log('это какое-то недоразумение');break;
+            }
+        }
     }
     else
     {
@@ -134,8 +170,8 @@ fs.readFile(LIST_OF_CITIES, "utf8", (err, data) => {
     cities = data;
     cities = JSON.parse(cities);
     checkError()
-                .then( (tokens) => { console.log(tokens); } )
-                .then( () => { completeCompare(tokens,cities)} )
+                .then( (tokens) =>  tokens )
+                .then( (tokens) => { console.log(completeCompare(tokens,cities));} )
                 .catch( () => { console.log("wrong query") ; } );
 });
 
