@@ -25,18 +25,19 @@
 
 //Путь к файлу с городами
 const LIST_OF_CITIES = "./cities.json";
+const LIST_OF_OUTPUT = "./output.json";
 
 // Пакет node для чтения из файла
 const fs = require("fs");
 const { exception, count } = require("console");
-
+const { strict } = require("assert");
 // тут мы получаем "запрос" из командной строки
 const query = process.argv[2];
 
 let cities = {};
 function parseQuery(consoleArg)
 {
-    let reg =/([\d]+|first|last|all)([\s]where[\s]%(number|city|region)%(>|<|=)([a-я]+|[\d]+))?/i;
+    let reg =/([\d]+|first|last|all)([\s]where[\s]%(number|city|region)%(>|<|=)([\D]+|[\d]+))?/i;
     let arr = consoleArg.match(reg);
     if(!!arr)
     {
@@ -98,33 +99,32 @@ function completeCompare (tokens,cities)
     {
         tokens.count=cities.length;
     }
-
-    // else if( tokens.count==='last')
-    // {
-    //     tokens.count=1;
-    //     startPostion=-2;
-    // }
-    
-    if(Number(tokens.count)>0)
+    if(Number(tokens.count)>0 || tokens.count=='last')
     {
         let res;
         if(tokens.filter.propertyToCompare==='number')
         {
+            
             switch (tokens.filter.compareSymbol)
             {
                 case '>':
                     res=cities.filter((item)=>item.number>tokens.filter.valueToCompare);
-                    return res.slice(startPostion,tokens.count);
+                    break;
                 case '<':
                     res=cities.filter((item)=>item.number<tokens.filter.valueToCompare);
-                    return res.slice(startPostion,tokens.count);
+                    break;
                 case '=':
                     res=cities.filter((item)=>item.number==tokens.filter.valueToCompare);
-                    return res.slice(startPostion,tokens.count);
+                    break;
                 default: console.log('это какое-то недоразумение');break;
             }
+            if( tokens.count==='last')
+            {
+                return res.slice(res.length-1,res.length);
+            }
+            return res.slice(startPostion,tokens.count);
         }
-        else if(tokens.filter.propertyToCompare==='region')
+        else if(tokens.filter.propertyToCompare==='region' || tokens.filter.propertyToCompare==='city')
         {
             switch (tokens.filter.compareSymbol)
             {
@@ -135,28 +135,18 @@ function completeCompare (tokens,cities)
                     console.log('нельзя сравнить на < текстовое поле');
                     throw 'нельзя сравнить на < текстовое поле';
                 case '=':
-                    res=cities.filter((item)=>item.region===tokens.filter.valueToCompare);
-                    return res.slice(startPostion,tokens.count);
+                    console.log(tokens.filter.valueToCompare);
+                    res=cities.filter((item)=>item[tokens.filter.propertyToCompare]==tokens.filter.valueToCompare);
+                    break;
                 default: 
                     console.log('это какое-то недоразумение');break;
             }
-        }
-        else if(tokens.filter.propertyToCompare==='city')
-        {
-            switch (tokens.filter.compareSymbol)
+            if( tokens.count==='last')
             {
-                case '>':
-                    console.log('нельзя сравнить на > текстовое поле');
-                    throw 'нельзя сравнить на > текстовое поле';
-                case '<':
-                    console.log('нельзя сравнить на < текстовое поле');
-                    throw 'нельзя сравнить на < текстовое поле';
-                case '=':
-                    res=cities.filter((item)=>item.city===tokens.filter.valueToCompare);
-                    return res.slice(startPostion,tokens.count);
-                default: 
-                    console.log('это какое-то недоразумение');break;
+                console.log(res.length-1,res.length);
+                return res.slice(res.length-1,res.length);
             }
+            return res.slice(startPostion,tokens.count);
         }
     }
     else
@@ -165,13 +155,30 @@ function completeCompare (tokens,cities)
         throw 'так не должно быть';
     }
 }
+function writeFile(data, file) {
+    if(data.length!=0)
+    {
+        return new Promise((resolve, reject) => {
+            fs.writeFile(file, JSON.stringify(data), "utf8", (error) => {
+                if (error) reject(error);
+                resolve(data);
+            });
+        });
+    }
+    else
+    {
+        console.log('Таких данных нет');
+        throw 'ошибка';
+    }
+  }
 // Чтение городов в переменную, запись в переменную производится в Callback-функции
 fs.readFile(LIST_OF_CITIES, "utf8", (err, data) => {
     cities = data;
     cities = JSON.parse(cities);
     checkError()
-                .then( (tokens) =>  tokens )
-                .then( (tokens) => { console.log(completeCompare(tokens,cities));} )
+                .then((tokens) =>  tokens )
+                .then( (tokens) => completeCompare(tokens,cities) )
+                .then((tokens)=>{writeFile(tokens,LIST_OF_OUTPUT);console.log(tokens);})
                 .catch( () => { console.log("wrong query") ; } );
 });
 
