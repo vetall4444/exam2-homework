@@ -35,6 +35,7 @@ const { strict } = require("assert");
 const query = process.argv[2];
 
 let cities = {};
+//Проверяю регулярным выражением  есть ли хотя бы первое слово, означающее количество
 function parseQuery(consoleArg)
 {
     let reg =/([\d]+|first|last|all)([\s]where[\s]%(number|city|region)%(>|<|=)([\D]+|[\d]+))?/i;
@@ -59,6 +60,7 @@ function parseQuery(consoleArg)
     }
     
 }
+//если слово есть, то проверяю, есть ли вторая часть запроса
 async function checkError()
 {
     let keyWord= await parseQuery(query);
@@ -88,6 +90,7 @@ async function checkError()
         throw 'wrong query';
     }
 }
+//если выражение составлено верно, выполняем его условия
 function completeCompare (tokens,cities)
 {
     let startPostion=0;
@@ -155,6 +158,7 @@ function completeCompare (tokens,cities)
         throw 'так не должно быть';
     }
 }
+//запись в файл
 function writeFile(data, file) {
     if(data.length!=0)
     {
